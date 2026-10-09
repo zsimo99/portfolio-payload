@@ -68,6 +68,15 @@ export const Content: Block = {
   interfaceName: 'ContentBlock',
   fields: [
     {
+      name: 'sectionId',
+      type: 'text',
+      label: 'Section ID',
+      defaultValue: 'content',
+      admin: {
+        description: 'HTML anchor ID for this section (e.g. "content"). Used for #anchor navigation links.',
+      },
+    },
+    {
       name: 'columns',
       type: 'array',
       admin: {

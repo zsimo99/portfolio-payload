@@ -26,54 +26,63 @@ export const Card: React.FC<{
 
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const titleToUse = titleFromProps || title
-  const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
+  const sanitizedDescription = description?.replace(/\s/g, ' ')
   const href = `/${relationTo}/${slug}`
 
   return (
     <article
       className={cn(
-        'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
+        'group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-foreground/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)] cursor-pointer',
         className,
       )}
       ref={card.ref}
     >
-      <div className="relative w-full ">
-        {!metaImage && <div className="">No image</div>}
-        {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
-      </div>
-      <div className="p-4">
+      {metaImage && typeof metaImage !== 'string' ? (
+        <div className="relative aspect-16/10 w-full overflow-hidden bg-muted/30 border-b border-border">
+          <Media
+            className="h-full w-full"
+            imgClassName="h-full w-full object-cover grayscale-[20%] contrast-[0.98] transition-all duration-500 group-hover:grayscale-0 group-hover:scale-[1.02]"
+            resource={metaImage}
+            size="(max-width: 768px) 100vw, 33vw"
+          />
+        </div>
+      ) : (
+        <div className="aspect-16/10 w-full bg-muted/20 border-b border-border" />
+      )}
+
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
         {showCategories && hasCategories && (
-          <div className="uppercase text-sm mb-4">
+          <div className="mb-3 flex flex-wrap gap-2 text-xs font-medium text-muted-foreground">
             {categories?.map((category, index) => {
               if (typeof category === 'object') {
-                const { title: titleFromCategory } = category
-
-                const categoryTitle = titleFromCategory || 'Untitled category'
-
-                const isLast = index === categories.length - 1
-
+                const categoryTitle = category?.title || 'General'
                 return (
-                  <Fragment key={index}>
+                  <span
+                    className="inline-block rounded px-2 py-0.5 font-mono text-[11px] font-medium tracking-tight bg-secondary text-secondary-foreground"
+                    key={index}
+                  >
                     {categoryTitle}
-                    {!isLast && <Fragment>, &nbsp;</Fragment>}
-                  </Fragment>
+                  </span>
                 )
               }
-
               return null
             })}
           </div>
         )}
+
         {titleToUse && (
-          <div className="prose">
-            <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
-                {titleToUse}
-              </Link>
-            </h3>
-          </div>
+          <h3 className="font-serif text-lg sm:text-xl font-medium tracking-tight text-foreground transition-colors group-hover:text-foreground/80">
+            <Link href={href} ref={link.ref}>
+              {titleToUse}
+            </Link>
+          </h3>
         )}
-        {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
+
+        {sanitizedDescription && (
+          <p className="mt-2.5 line-clamp-2 text-sm text-muted-foreground leading-relaxed font-sans">
+            {sanitizedDescription}
+          </p>
+        )}
       </div>
     </article>
   )

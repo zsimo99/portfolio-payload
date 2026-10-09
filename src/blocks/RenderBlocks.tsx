@@ -2,18 +2,32 @@ import React, { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
 
+import { AboutBlockComponent } from '@/blocks/AboutBlock/Component'
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { ContactBlockComponent } from '@/blocks/ContactBlock/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
+import { EducationBlockComponent } from '@/blocks/EducationBlock/Component'
+import { ExperienceBlockComponent } from '@/blocks/ExperienceBlock/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { HeroBlockComponent } from '@/blocks/HeroBlock/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { ProjectsBlockComponent } from '@/blocks/ProjectsBlock/Component'
+import { SkillsBlockComponent } from '@/blocks/SkillsBlock/Component'
 
 const blockComponents = {
+  aboutBlock: AboutBlockComponent,
   archive: ArchiveBlock,
+  contactBlock: ContactBlockComponent,
   content: ContentBlock,
   cta: CallToActionBlock,
+  educationBlock: EducationBlockComponent,
+  experienceBlock: ExperienceBlockComponent,
   formBlock: FormBlock,
+  heroBlock: HeroBlockComponent,
   mediaBlock: MediaBlock,
+  projectsBlock: ProjectsBlockComponent,
+  skillsBlock: SkillsBlockComponent,
 }
 
 export const RenderBlocks: React.FC<{
@@ -30,13 +44,22 @@ export const RenderBlocks: React.FC<{
           const { blockType } = block
 
           if (blockType && blockType in blockComponents) {
-            const Block = blockComponents[blockType]
+            const Block = blockComponents[blockType] as React.ComponentType<any>
 
             if (Block) {
+              const rawSectionId =
+                'sectionId' in block && typeof block.sectionId === 'string' && block.sectionId.trim()
+                  ? block.sectionId.trim()
+                  : undefined
+
               return (
-                <div className="my-16" key={index}>
-                  {/* @ts-expect-error there may be some mismatch between the expected types here */}
-                  <Block {...block} disableInnerContainer />
+                <div key={index}>
+                  <Block
+                    {...block}
+                    disableInnerContainer
+                    id={rawSectionId || undefined}
+                    sectionId={rawSectionId || undefined}
+                  />
                 </div>
               )
             }

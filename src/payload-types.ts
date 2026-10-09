@@ -158,50 +158,20 @@ export interface UserAuthOperations {
 export interface Page {
   id: string;
   title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
-    richText?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: string | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: string | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    media?: (string | null) | Media;
-  };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | HeroBlock
+    | AboutBlock
+    | SkillsBlock
+    | ExperienceBlock
+    | ProjectsBlock
+    | EducationBlock
+    | ContactBlock
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -222,53 +192,68 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "HeroBlock".
  */
-export interface Post {
-  id: string;
+export interface HeroBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "hero"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Static prefix of the headline (e.g. "I build things as a" or "Designing the future of")
+   */
   title: string;
-  heroImage?: (string | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (string | Post)[] | null;
-  categories?: (string | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (string | User)[] | null;
-  populatedAuthors?:
+  /**
+   * Array of words that appear at the end of the title and switch continuously with animation
+   */
+  rotatingWords?:
     | {
+        text: string;
         id?: string | null;
-        name?: string | null;
       }[]
     | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Brief, clear subtitle beneath the headline
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
+  subtitle?: string | null;
+  /**
+   * Portrait or showcase visual displayed on the right side of the hero
+   */
+  image?: (string | null) | Media;
+  /**
+   * Optional full-bleed background image behind the hero section
+   */
+  backgroundImage?: (string | null) | Media;
+  /**
+   * Two call-to-action buttons (e.g. Primary "View Projects" and Secondary "Contact Me")
+   */
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'heroBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -391,6 +376,56 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: string;
+  title: string;
+  heroImage?: (string | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (string | Post)[] | null;
+  categories?: (string | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (string | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
@@ -427,6 +462,7 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -441,10 +477,25 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock".
+ * via the `definition` "AboutBlock".
  */
-export interface CallToActionBlock {
-  richText?: {
+export interface AboutBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "about"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Small category or status tag above the headline
+   */
+  badge?: string | null;
+  /**
+   * Main section heading on the left side
+   */
+  title: string;
+  /**
+   * Paragraphs, story, or bio description on the left side
+   */
+  paragraphs: {
     root: {
       type: string;
       children: {
@@ -458,7 +509,10 @@ export interface CallToActionBlock {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
+  /**
+   * Optional links below the paragraphs (e.g. "Download Resume", "Read More")
+   */
   links?:
     | {
         link: {
@@ -483,19 +537,85 @@ export interface CallToActionBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Showcase visual displayed on the right: supports both images and video uploads
+   */
+  media: string | Media;
+  /**
+   * Brief caption or note underneath the media frame
+   */
+  caption?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'cta';
+  blockType: 'aboutBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentBlock".
+ * via the `definition` "SkillsBlock".
  */
-export interface ContentBlock {
-  columns?:
+export interface SkillsBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "skills"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Small category or status tag above the headline
+   */
+  badge?: string | null;
+  /**
+   * Main section heading
+   */
+  title: string;
+  /**
+   * Brief, clear subtitle beneath the headline
+   */
+  subtitle?: string | null;
+  categories?:
     | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: {
+        title: string;
+        description?: string | null;
+        skills?:
+          | {
+              name: string;
+              proficiency?: ('Expert' | 'Advanced' | 'Intermediate' | 'Familiar') | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'skillsBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ExperienceBlock".
+ */
+export interface ExperienceBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "experience"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Small category tag above the section headline
+   */
+  badge?: string | null;
+  /**
+   * Main section heading
+   */
+  title: string;
+  /**
+   * Brief, clear subtitle beneath the headline
+   */
+  subtitle?: string | null;
+  items?:
+    | {
+        role: string;
+        company: string;
+        period: string;
+        location?: string | null;
+        description?: {
           root: {
             type: string;
             children: {
@@ -510,102 +630,200 @@ export interface ContentBlock {
           };
           [k: string]: unknown;
         } | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: string | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: string | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
+        technologies?:
+          | {
+              name: string;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'content';
+  blockType: 'experienceBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
+ * via the `definition` "ProjectsBlock".
  */
-export interface MediaBlock {
-  media: string | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock".
- */
-export interface ArchiveBlock {
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  populateBy?: ('collection' | 'selection') | null;
-  relationTo?: 'posts' | null;
-  categories?: (string | Category)[] | null;
-  limit?: number | null;
-  selectedDocs?:
+export interface ProjectsBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "projects"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Small category tag above the headline
+   */
+  badge?: string | null;
+  /**
+   * Main section heading
+   */
+  title: string;
+  /**
+   * Brief subtitle beneath the headline
+   */
+  subtitle?: string | null;
+  projects?:
     | {
-        relationTo: 'posts';
-        value: string | Post;
+        title: string;
+        /**
+         * Filter tag (e.g. "Web App", "E-Commerce", "UI/UX Design", "Mobile", "Full Stack")
+         */
+        category: string;
+        description: string;
+        /**
+         * Showcase visual or mockup representing the project
+         */
+        image?: (string | null) | Media;
+        technologies?:
+          | {
+              name: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * URL for the live demo button (e.g. https://myproject.com). Leave empty to hide.
+         */
+        demoUrl?: string | null;
+        /**
+         * URL for the GitHub code button (e.g. https://github.com/user/repo). Leave empty to hide.
+         */
+        githubUrl?: string | null;
+        id?: string | null;
       }[]
     | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'archive';
+  blockType: 'projectsBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
+ * via the `definition` "EducationBlock".
  */
-export interface FormBlock {
-  form: string | Form;
-  enableIntro?: boolean | null;
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+export interface EducationBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "education"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Small category tag above the headline
+   */
+  badge?: string | null;
+  /**
+   * Main section heading
+   */
+  title: string;
+  /**
+   * Subtitle beneath the headline
+   */
+  subtitle?: string | null;
+  education?:
+    | {
+        degree: string;
+        institution: string;
+        period: string;
+        location?: string | null;
+        grade?: string | null;
+        description?: string | null;
+        highlights?:
+          | {
+              item: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  certifications?:
+    | {
+        name: string;
+        issuer: string;
+        issueDate: string;
+        credentialId?: string | null;
+        /**
+         * Link to certificate verification page. Leave empty to hide button.
+         */
+        credentialUrl?: string | null;
+        skills?:
+          | {
+              skill: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'formBlock';
+  blockType: 'educationBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactBlock".
+ */
+export interface ContactBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "contact"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  /**
+   * Select a form built with Payload Form Builder. If selected, it will render your custom form. Leave empty for the default quick contact form.
+   */
+  form?: (string | null) | Form;
+  /**
+   * Small tag pill above the main headline
+   */
+  badge?: string | null;
+  /**
+   * Bold, conversion-focused headline
+   */
+  title: string;
+  /**
+   * Supporting paragraph outlining how you help clients
+   */
+  subtitle?: string | null;
+  /**
+   * Pulsing indicator text showing current capacity
+   */
+  availabilityStatus?: string | null;
+  /**
+   * Guarantees fast response and builds trust
+   */
+  responseTime?: string | null;
+  /**
+   * Primary contact email for quick copying and mailto fallback
+   */
+  email: string;
+  /**
+   * Optional phone or WhatsApp contact number
+   */
+  phone?: string | null;
+  /**
+   * Your location or timezone context
+   */
+  location?: string | null;
+  /**
+   * URL to Cal.com or Calendly booking page
+   */
+  scheduleMeetingUrl?: string | null;
+  scheduleMeetingLabel?: string | null;
+  servicesList?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  socialLinks?:
+    | {
+        platform: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contactBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -724,9 +942,6 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -746,9 +961,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -757,9 +969,6 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
@@ -780,6 +989,190 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock".
+ */
+export interface CallToActionBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "cta"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "content"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "media"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  media: string | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock".
+ */
+export interface ArchiveBlock {
+  /**
+   * HTML anchor ID for this section (e.g. "archive" or "posts"). Used for #anchor navigation links.
+   */
+  sectionId?: string | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  populateBy?: ('collection' | 'selection') | null;
+  relationTo?: 'posts' | null;
+  categories?: (string | Category)[] | null;
+  limit?: number | null;
+  selectedDocs?:
+    | {
+        relationTo: 'posts';
+        value: string | Post;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  form: string | Form;
+  enableIntro?: boolean | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1059,31 +1452,16 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
-  hero?:
-    | T
-    | {
-        type?: T;
-        richText?: T;
-        links?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                    appearance?: T;
-                  };
-              id?: T;
-            };
-        media?: T;
-      };
   layout?:
     | T
     | {
+        heroBlock?: T | HeroBlockSelect<T>;
+        aboutBlock?: T | AboutBlockSelect<T>;
+        skillsBlock?: T | SkillsBlockSelect<T>;
+        experienceBlock?: T | ExperienceBlockSelect<T>;
+        projectsBlock?: T | ProjectsBlockSelect<T>;
+        educationBlock?: T | EducationBlockSelect<T>;
+        contactBlock?: T | ContactBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1106,9 +1484,234 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  title?: T;
+  rotatingWords?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  subtitle?: T;
+  image?: T;
+  backgroundImage?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutBlock_select".
+ */
+export interface AboutBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  badge?: T;
+  title?: T;
+  paragraphs?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  media?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SkillsBlock_select".
+ */
+export interface SkillsBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  badge?: T;
+  title?: T;
+  subtitle?: T;
+  categories?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        skills?:
+          | T
+          | {
+              name?: T;
+              proficiency?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ExperienceBlock_select".
+ */
+export interface ExperienceBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  badge?: T;
+  title?: T;
+  subtitle?: T;
+  items?:
+    | T
+    | {
+        role?: T;
+        company?: T;
+        period?: T;
+        location?: T;
+        description?: T;
+        technologies?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectsBlock_select".
+ */
+export interface ProjectsBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  badge?: T;
+  title?: T;
+  subtitle?: T;
+  projects?:
+    | T
+    | {
+        title?: T;
+        category?: T;
+        description?: T;
+        image?: T;
+        technologies?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        demoUrl?: T;
+        githubUrl?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EducationBlock_select".
+ */
+export interface EducationBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  badge?: T;
+  title?: T;
+  subtitle?: T;
+  education?:
+    | T
+    | {
+        degree?: T;
+        institution?: T;
+        period?: T;
+        location?: T;
+        grade?: T;
+        description?: T;
+        highlights?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  certifications?:
+    | T
+    | {
+        name?: T;
+        issuer?: T;
+        issueDate?: T;
+        credentialId?: T;
+        credentialUrl?: T;
+        skills?:
+          | T
+          | {
+              skill?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactBlock_select".
+ */
+export interface ContactBlockSelect<T extends boolean = true> {
+  sectionId?: T;
+  form?: T;
+  badge?: T;
+  title?: T;
+  subtitle?: T;
+  availabilityStatus?: T;
+  responseTime?: T;
+  email?: T;
+  phone?: T;
+  location?: T;
+  scheduleMeetingUrl?: T;
+  scheduleMeetingLabel?: T;
+  servicesList?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CallToActionBlock_select".
  */
 export interface CallToActionBlockSelect<T extends boolean = true> {
+  sectionId?: T;
   richText?: T;
   links?:
     | T
@@ -1133,6 +1736,7 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
+  sectionId?: T;
   columns?:
     | T
     | {
@@ -1159,6 +1763,7 @@ export interface ContentBlockSelect<T extends boolean = true> {
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
+  sectionId?: T;
   media?: T;
   id?: T;
   blockName?: T;
@@ -1168,6 +1773,7 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "ArchiveBlock_select".
  */
 export interface ArchiveBlockSelect<T extends boolean = true> {
+  sectionId?: T;
   introContent?: T;
   populateBy?: T;
   relationTo?: T;
@@ -1346,6 +1952,7 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -1637,6 +2244,14 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
+  /**
+   * Upload custom logo image (SVG, PNG, WebP)
+   */
+  logo?: (string | null) | Media;
+  /**
+   * Text displayed next to or in place of logo (e.g. your name or brand)
+   */
+  logoText?: string | null;
   navItems?:
     | {
         link: {
@@ -1694,6 +2309,8 @@ export interface Footer {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
+  logo?: T;
+  logoText?: T;
   navItems?:
     | T
     | {
@@ -1763,7 +2380,10 @@ export interface TaskSchedulePublish {
           value: string | Post;
         } | null);
     global?: string | null;
-    user?: (string | null) | User;
+    user?: {
+      relationTo: 'users';
+      value: string | User;
+    } | null;
   };
   output?: unknown;
 }

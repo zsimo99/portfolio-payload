@@ -14,6 +14,15 @@ export const CallToAction: Block = {
   interfaceName: 'CallToActionBlock',
   fields: [
     {
+      name: 'sectionId',
+      type: 'text',
+      label: 'Section ID',
+      defaultValue: 'cta',
+      admin: {
+        description: 'HTML anchor ID for this section (e.g. "cta"). Used for #anchor navigation links.',
+      },
+    },
+    {
       name: 'richText',
       type: 'richText',
       editor: lexicalEditor({

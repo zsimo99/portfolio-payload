@@ -14,25 +14,20 @@ import { getClientSideURL } from '@/utilities/getURL'
 export type FormBlockType = {
   blockName?: string
   blockType?: 'formBlock'
-  enableIntro: boolean
+  enableIntro?: boolean
   form: FormType
   introContent?: DefaultTypedEditorState
+  sectionId?: string | null
 }
 
-export const FormBlock: React.FC<
-  {
-    id?: string
-  } & FormBlockType
-> = (props) => {
-  const {
-    enableIntro,
-    form: formFromProps,
-    form: { id: formID, confirmationMessage, confirmationType, redirect, submitButtonLabel } = {},
-    introContent,
-  } = props
+export const FormBuilderRenderer: React.FC<{
+  form: FormType
+}> = ({ form: formFromProps }) => {
+  const { id: formID, confirmationMessage, confirmationType, redirect, submitButtonLabel } =
+    formFromProps || {}
 
   const formMethods = useForm({
-    defaultValues: formFromProps.fields,
+    defaultValues: formFromProps?.fields,
   })
   const {
     control,
@@ -57,10 +52,10 @@ export const FormBlock: React.FC<
           value,
         }))
 
-        // delay loading indicator by 1s
+        // delay loading indicator by 500ms
         loadingTimerID = setTimeout(() => {
           setIsLoading(true)
-        }, 1000)
+        }, 500)
 
         try {
           const req = await fetch(`${getClientSideURL()}/api/form-submissions`, {
@@ -94,16 +89,13 @@ export const FormBlock: React.FC<
 
           if (confirmationType === 'redirect' && redirect) {
             const { url } = redirect
-
-            const redirectUrl = url
-
-            if (redirectUrl) router.push(redirectUrl)
+            if (url) router.push(url)
           }
         } catch (err) {
           console.warn(err)
           setIsLoading(false)
           setError({
-            message: 'Something went wrong.',
+            message: 'Something went wrong. Please try again.',
           })
         }
       }
@@ -114,50 +106,98 @@ export const FormBlock: React.FC<
   )
 
   return (
-    <div className="container lg:max-w-[48rem]">
-      {enableIntro && introContent && !hasSubmitted && (
-        <RichText className="mb-8 lg:mb-12" data={introContent} enableGutter={false} />
+    <FormProvider {...formMethods}>
+      {!isLoading && hasSubmitted && confirmationType === 'message' && (
+        <div className="rounded-lg border border-(--pastel-green-border) bg-(--pastel-green) p-6 text-(--pastel-green-text) text-sm">
+          <RichText data={confirmationMessage} />
+        </div>
       )}
-      <div className="p-4 lg:p-6 border border-border rounded-[0.8rem]">
-        <FormProvider {...formMethods}>
-          {!isLoading && hasSubmitted && confirmationType === 'message' && (
-            <RichText data={confirmationMessage} />
-          )}
-          {isLoading && !hasSubmitted && <p>Loading, please wait...</p>}
-          {error && <div>{`${error.status || '500'}: ${error.message || ''}`}</div>}
-          {!hasSubmitted && (
-            <form id={formID} onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-4 last:mb-0">
-                {formFromProps &&
-                  formFromProps.fields &&
-                  formFromProps.fields?.map((field, index) => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const Field: React.FC<any> = fields?.[field.blockType as keyof typeof fields]
-                    if (Field) {
-                      return (
-                        <div className="mb-6 last:mb-0" key={index}>
-                          <Field
-                            form={formFromProps}
-                            {...field}
-                            {...formMethods}
-                            control={control}
-                            errors={errors}
-                            register={register}
-                          />
-                        </div>
-                      )
-                    }
-                    return null
-                  })}
-              </div>
+      {isLoading && !hasSubmitted && (
+        <div className="py-8 text-center text-muted-foreground animate-pulse text-sm font-mono">
+          Sending your submission...
+        </div>
+      )}
+      {error && (
+        <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          {error.message || 'An error occurred'}
+        </div>
+      )}
+      {!hasSubmitted && (
+        <form id={formID} onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-5">
+            {formFromProps &&
+              formFromProps.fields &&
+              formFromProps.fields?.map((field, index) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const Field: React.FC<any> = fields?.[field.blockType as keyof typeof fields]
+                if (Field) {
+                  return (
+                    <div key={index}>
+                      <Field
+                        form={formFromProps}
+                        {...field}
+                        {...formMethods}
+                        control={control}
+                        errors={errors}
+                        register={register}
+                      />
+                    </div>
+                  )
+                }
+                return null
+              })}
+          </div>
 
-              <Button form={formID} type="submit" variant="default">
-                {submitButtonLabel}
-              </Button>
-            </form>
-          )}
-        </FormProvider>
+          <div className="mt-7">
+            <Button
+              className="w-full sm:w-auto min-w-36"
+              disabled={isLoading}
+              form={formID}
+              size="lg"
+              type="submit"
+            >
+              {isLoading ? 'Submitting...' : submitButtonLabel || 'Submit'}
+            </Button>
+          </div>
+        </form>
+      )}
+    </FormProvider>
+  )
+}
+
+export const FormBlock: React.FC<
+  {
+    id?: string
+    sectionId?: string | null
+  } & FormBlockType
+> = (props) => {
+  const {
+    enableIntro,
+    form: formFromProps,
+    id,
+    introContent,
+    sectionId,
+  } = props
+
+  return (
+    <section
+      id={sectionId || id || 'form'}
+      className="container max-w-5xl py-8 md:py-12 scroll-mt-20"
+    >
+      <div className="mx-auto max-w-2xl">
+        {enableIntro && introContent && (
+          <div className="mb-8 md:mb-10">
+            <RichText
+              className="prose-h2:font-serif prose-h2:text-3xl prose-h2:font-normal prose-h2:tracking-tight prose-p:text-muted-foreground"
+              data={introContent}
+              enableGutter={false}
+            />
+          </div>
+        )}
+        <div className="overflow-hidden rounded-xl border border-border bg-card p-6 sm:p-8 md:p-10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          {formFromProps && <FormBuilderRenderer form={formFromProps} />}
+        </div>
       </div>
-    </div>
+    </section>
   )
 }

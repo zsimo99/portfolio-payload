@@ -5,6 +5,15 @@ export const MediaBlock: Block = {
   interfaceName: 'MediaBlock',
   fields: [
     {
+      name: 'sectionId',
+      type: 'text',
+      label: 'Section ID',
+      defaultValue: 'media',
+      admin: {
+        description: 'HTML anchor ID for this section (e.g. "media"). Used for #anchor navigation links.',
+      },
+    },
+    {
       name: 'media',
       type: 'upload',
       relationTo: 'media',

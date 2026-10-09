@@ -16,26 +16,30 @@ type Props = MediaBlockProps & {
   imgClassName?: string
   staticImage?: StaticImageData
   disableInnerContainer?: boolean
+  sectionId?: string | null
 }
 
 export const MediaBlock: React.FC<Props> = (props) => {
   const {
     captionClassName,
     className,
+    disableInnerContainer,
     enableGutter = true,
+    id,
     imgClassName,
     media,
+    sectionId,
     staticImage,
-    disableInnerContainer,
   } = props
 
   let caption
   if (media && typeof media === 'object') caption = media.caption
 
   return (
-    <div
+    <figure
+      id={sectionId || id || 'media'}
       className={cn(
-        '',
+        'mx-auto w-full scroll-mt-20',
         {
           container: enableGutter,
         },
@@ -43,16 +47,19 @@ export const MediaBlock: React.FC<Props> = (props) => {
       )}
     >
       {(media || staticImage) && (
-        <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
-          resource={media}
-          src={staticImage}
-        />
+        <div className="overflow-hidden rounded-xl border border-border bg-card p-2 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all duration-200">
+          <Media
+            className="w-full overflow-hidden rounded-lg"
+            imgClassName={cn('w-full h-auto object-cover rounded-lg', imgClassName)}
+            resource={media}
+            src={staticImage}
+          />
+        </div>
       )}
       {caption && (
-        <div
+        <figcaption
           className={cn(
-            'mt-6',
+            'mt-3 text-center font-mono text-xs text-muted-foreground',
             {
               container: !disableInnerContainer,
             },
@@ -60,8 +67,8 @@ export const MediaBlock: React.FC<Props> = (props) => {
           )}
         >
           <RichText data={caption} enableGutter={false} />
-        </div>
+        </figcaption>
       )}
-    </div>
+    </figure>
   )
 }

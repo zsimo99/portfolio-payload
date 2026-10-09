@@ -12,6 +12,15 @@ export const Archive: Block = {
   interfaceName: 'ArchiveBlock',
   fields: [
     {
+      name: 'sectionId',
+      type: 'text',
+      label: 'Section ID',
+      defaultValue: 'archive',
+      admin: {
+        description: 'HTML anchor ID for this section (e.g. "archive" or "posts"). Used for #anchor navigation links.',
+      },
+    },
+    {
       name: 'introContent',
       type: 'richText',
       editor: lexicalEditor({

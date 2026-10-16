@@ -33,6 +33,28 @@ const nextConfig: NextConfig = {
           protocol: url.protocol.replace(':', '') as 'http' | 'https',
         }
       }),
+      ...(process.env.S3_BUCKET
+        ? [
+            {
+              hostname: '**.amazonaws.com',
+              protocol: 'https' as const,
+            },
+          ]
+        : []),
+      ...(() => {
+        if (!process.env.S3_ENDPOINT) return []
+        try {
+          const url = new URL(process.env.S3_ENDPOINT)
+          return [
+            {
+              hostname: url.hostname,
+              protocol: url.protocol.replace(':', '') as 'http' | 'https',
+            },
+          ]
+        } catch {
+          return []
+        }
+      })(),
     ],
   },
   webpack: (webpackConfig) => {
